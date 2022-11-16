@@ -11,6 +11,8 @@ import java.util.concurrent.CompletionStage;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import org.apache.kafka.connect.data.Struct;
+import org.apache.kafka.connect.source.SourceRecord;
 import org.apache.kafka.connect.storage.FileOffsetBackingStore;
 import org.gingesnap.cdc.cache.CacheService;
 import org.gingesnap.cdc.configuration.Backend;
@@ -27,7 +29,9 @@ import org.gingesnap.cdc.translation.IdentityTranslator;
 import org.gingesnap.cdc.translation.JsonTranslator;
 import org.gingesnap.cdc.translation.PrependJsonTranslator;
 import org.gingesnap.cdc.translation.PrependStringTranslator;
+import org.gingesnap.cdc.util.Serialization;
 
+import io.debezium.embedded.Connect;
 import io.debezium.engine.ChangeEvent;
 import io.debezium.engine.DebeziumEngine;
 import io.debezium.engine.format.Json;
@@ -42,7 +46,7 @@ public class EngineWrapper {
    private final ManagedEngine managedEngine;
    private final Backend backend;
    private final Properties properties;
-   private volatile DebeziumEngine<ChangeEvent<String, String>> engine;
+   private volatile DebeziumEngine<ChangeEvent<SourceRecord, SourceRecord>> engine;
 
    private EngineWrapper(String name, Region.SingleRegion region, Properties properties, CacheService cacheService,
          ManagedEngine managedEngine) {
@@ -123,7 +127,7 @@ public class EngineWrapper {
          default:
             throw new IllegalArgumentException("Key type: " + backend.keyType() + " not supported!");
       }
-      this.engine = DebeziumEngine.create(Json.class)
+      this.engine = DebeziumEngine.create(Connect.class)
             .using(properties)
             .using(this.getClass().getClassLoader())
             .notifying(new BatchConsumer(cacheService.backendForURI(backend.uri(), keyTranslator,
