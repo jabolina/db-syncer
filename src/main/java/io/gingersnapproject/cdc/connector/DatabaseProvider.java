@@ -18,7 +18,7 @@ public enum DatabaseProvider {
       public Properties databaseProperties(Connector connector, Database database) {
          Properties properties = new Properties();
          properties.setProperty("connector.class", MySqlConnector.class.getCanonicalName());
-         properties.setProperty("table.include.list", String.format("%s.%s", connector.schema(), connector.table()));
+         //properties.setProperty("table.include.list", String.format("%s.%s", connector.schema(), connector.table()));
 
          // MySQL requires a unique id, this can change between restarts.
          properties.setProperty("database.server.id", String.valueOf(Math.abs(new Random().nextInt())));
@@ -53,10 +53,6 @@ public enum DatabaseProvider {
          properties.setProperty(DATABASE_NAMES.name(), databaseName);
          properties.setProperty("table.include.list", String.format("%s.%s", connector.schema(), connector.table()));
          properties.setProperty("database.encrypt", "false");
-
-         // SQL Server has a slightly different naming
-         String schemaRegex = String.format("/.*\\.%s\\.%s\\.%s\\..*/", databaseName, connector.schema(), connector.table());
-         properties.setProperty("transforms.filter.condition", "value.source.table == 'customer' && valueSchema.name ==~ " + schemaRegex);
          return properties;
       }
    };

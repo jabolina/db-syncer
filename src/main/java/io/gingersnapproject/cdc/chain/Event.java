@@ -18,26 +18,4 @@ import org.infinispan.commons.dataconversion.internal.Json;
  *
  * @author Jose Bolina
  */
-public class Event {
-
-   private final Json key;
-   private final Json value;
-
-   public Event(Json key, Json value) {
-      this.key = key;
-      this.value = value;
-   }
-
-   public Json key() {
-      return key;
-   }
-
-   public Json value() {
-      return value;
-   }
-
-   @Override
-   public String toString() {
-      return "Event{" + "key=" + key + ", value=" + value + '}';
-   }
-}
+public record Event(Json key, Json value) { }

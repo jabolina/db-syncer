@@ -7,7 +7,7 @@
   <version>0.1-SNAPSHOT</version>
   <properties>
     <compiler-plugin.version>3.8.1</compiler-plugin.version>
-    <maven.compiler.release>11</maven.compiler.release>
+    <maven.compiler.release>17</maven.compiler.release>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <quarkus.platform.artifact-id>quarkus-bom</quarkus.platform.artifact-id>
@@ -94,6 +94,11 @@
       <groupId>io.debezium</groupId>
       <artifactId>debezium-connector-sqlserver</artifactId>
       <version>${version.debezium}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.h2database</groupId>
+      <artifactId>h2</artifactId>
+      <version>2.1.214</version>
     </dependency>
     <dependency>
       <groupId>io.quarkus</groupId>

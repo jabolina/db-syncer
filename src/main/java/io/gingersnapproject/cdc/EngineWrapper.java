@@ -1,6 +1,9 @@
 package io.gingersnapproject.cdc;
 
-import static io.debezium.relational.HistorizedRelationalDatabaseConnectorConfig.SCHEMA_HISTORY;
+import io.debezium.embedded.Connect;
+import io.debezium.engine.ChangeEvent;
+import io.debezium.engine.DebeziumEngine;
+import org.apache.kafka.connect.source.SourceRecord;
 
 import java.io.IOException;
 import java.util.List;
@@ -19,6 +22,7 @@ import io.gingersnapproject.cdc.configuration.Database;
 import io.gingersnapproject.cdc.configuration.Rule;
 import io.gingersnapproject.cdc.connector.DatabaseProvider;
 import io.gingersnapproject.cdc.consumer.BatchConsumer;
+import io.gingersnapproject.cdc.consumer.ViewMaintenanceConsumer;
 import io.gingersnapproject.cdc.remote.RemoteOffsetStore;
 import io.gingersnapproject.cdc.remote.RemoteSchemaHistory;
 import io.gingersnapproject.cdc.translation.ColumnJsonTranslator;
@@ -28,10 +32,7 @@ import io.gingersnapproject.cdc.translation.JsonTranslator;
 import io.gingersnapproject.cdc.translation.PrependJsonTranslator;
 import io.gingersnapproject.cdc.translation.PrependStringTranslator;
 
-import io.debezium.embedded.Connect;
-import io.debezium.engine.ChangeEvent;
-import io.debezium.engine.DebeziumEngine;
-import org.apache.kafka.connect.source.SourceRecord;
+import static io.debezium.relational.HistorizedRelationalDatabaseConnectorConfig.SCHEMA_HISTORY;
 
 public class EngineWrapper {
 
@@ -99,7 +100,7 @@ public class EngineWrapper {
       this.engine = DebeziumEngine.create(Connect.class)
             .using(properties)
             .using(this.getClass().getClassLoader())
-            .notifying(new BatchConsumer(this, chain, executor))
+            .notifying(createChangeConsumer(chain))
             .build();
       executor.submit(engine);
    }
@@ -148,5 +149,17 @@ public class EngineWrapper {
       }
 
       return cacheService.backendForURI(backend.uri(), keyTranslator, valueTranslator);
+   }
+
+   private DebeziumEngine.ChangeConsumer<ChangeEvent<SourceRecord, SourceRecord>> createChangeConsumer(EventProcessingChain chain) {
+      if (isQueryMode())
+         return new ViewMaintenanceConsumer(chain);
+
+      return new BatchConsumer(this, chain, executor);
+   }
+
+   // TODO: verify if using query.
+   private boolean isQueryMode() {
+      return true;
    }
 }

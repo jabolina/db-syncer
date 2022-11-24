@@ -16,7 +16,7 @@ public abstract class EventProcessingChain {
 
    public abstract boolean process(Event event, EventContext ctx);
 
-   boolean processNext(Event event, EventContext ctx) {
+   protected boolean processNext(Event event, EventContext ctx) {
       if (next == null) {
          return true;
       }
@@ -30,5 +30,14 @@ public abstract class EventProcessingChain {
          head = link;
       }
       return first;
+   }
+
+   public void add(EventProcessingChain other) {
+      if (next == null) {
+         next = other;
+         return;
+      }
+
+      next.add(other);
    }
 }

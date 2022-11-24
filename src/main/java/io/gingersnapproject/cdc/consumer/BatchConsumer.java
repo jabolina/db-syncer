@@ -22,7 +22,7 @@ import org.infinispan.commons.dataconversion.internal.Json;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class BatchConsumer implements DebeziumEngine.ChangeConsumer<ChangeEvent<SourceRecord, SourceRecord>> {
+public class BatchConsumer extends AbstractChangeConsumer {
    private static final Logger log = LoggerFactory.getLogger(BatchConsumer.class);
    private final EngineWrapper engine;
    private final EventProcessingChain chain;
@@ -65,27 +65,6 @@ public class BatchConsumer implements DebeziumEngine.ChangeConsumer<ChangeEvent<
       } catch (Throwable t) {
          log.info("Exception encountered writing updates for engine {}", engine.getName(), t);
          engine.notifyError();
-      }
-   }
-
-   private Event create(ChangeEvent<SourceRecord, SourceRecord> ev) {
-      Json key = create(ev.value().key());
-      Json value = create(ev.value().value());
-      return new Event(key, value);
-   }
-
-   private Json create(Object object) {
-      if (object instanceof Struct)
-         return Serialization.convert((Struct) object);
-
-      throw new IllegalStateException("Object is not a struct");
-   }
-
-   private void uncheckedCommit(ChangeEvent<SourceRecord, SourceRecord> ev, DebeziumEngine.RecordCommitter<ChangeEvent<SourceRecord, SourceRecord>> committer) {
-      try {
-         committer.markProcessed(ev);
-      } catch (InterruptedException e) {
-         throw new RuntimeException(e);
       }
    }
 }

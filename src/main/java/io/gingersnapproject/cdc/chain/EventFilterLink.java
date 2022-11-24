@@ -32,8 +32,7 @@ public class EventFilterLink extends EventProcessingChain {
          return false;
       }
 
-      String table = event.value().at("source").at("table").asString();
-      return rule.connector().table().equals(table) && processNext(event, ctx);
+      return processNext(event, ctx);
    }
 
    /**
@@ -53,6 +52,6 @@ public class EventFilterLink extends EventProcessingChain {
    }
 
    private boolean isDdl(Event event) {
-      return event.value().has("ddl") && event.value().at("ddl") != null;
+      return event.value().has("ddl") && event.value().at("ddl") != null && event.value().at("tableChanges").asJsonList().isEmpty();
    }
 }
