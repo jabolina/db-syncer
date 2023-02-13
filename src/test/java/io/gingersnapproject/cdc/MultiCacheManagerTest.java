@@ -43,7 +43,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 @QuarkusTest
-@WithDatabase(rules = MultiCacheManagerTest.RULE_NAME)
+@WithDatabase
 public class MultiCacheManagerTest {
    static final String RULE_NAME = "multimanager";
 
@@ -62,6 +62,7 @@ public class MultiCacheManagerTest {
    void beforeEach() {
       clearInvocations(notification);
       reset(notification);
+      manager.addRule(RULE_NAME, new ManagedEngineTest.MockTestRule());
    }
 
    @Test

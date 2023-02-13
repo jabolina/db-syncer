@@ -263,7 +263,7 @@ public class ManagedEngineTest {
       }
    }
 
-   private static final class MockTestRule implements Rule {
+   public static final class MockTestRule implements Rule {
       @Override
       public Connector connector() {
          return new Connector() {
